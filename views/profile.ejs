@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+		
+		<title>유저 조회 페이지</title>
+		
+		<link href="/public/semantic.min.css" rel="stylesheet" >
+
+		<style>
+			* {
+				padding:0;
+				margin:0;
+				box-sizing:border-box;
+			}
+			
+			html {
+				width:100%;
+				height:100%;
+			}
+			
+			body {
+				width:100%;
+				height:100%;
+				color: #000;
+				background-color: #fff;
+			}
+					
+			.container {
+				margin-right: auto;
+				margin-left: auto;
+				padding-left: 20px;
+				padding-right: 20px;
+			}
+	
+			span {
+				color: #999;
+			}
+			
+			#titleOutput {
+				margin-bottom: 10px;
+				line-height: 1.2em;
+			}
+			
+			#contentsOutput {
+				margin-top: 10px;
+				margin-bottom: 10px;
+				line-height: 1.8em;
+			}
+	  
+			#board_title {
+				font-size:1.2em;
+				font-weight:bold;
+				color:teal;
+			}
+	.align{
+		float: left;
+	}
+	.align2{
+		float: right;
+		display: inline;
+	}
+	.hidedbutton{
+		display: none;
+	}
+	.box{
+		display: inline;
+	}
+		</style>
+			<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+			integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+			crossorigin="anonymous"
+		/>
+				<link rel="stylesheet" href="/public/assets/css/main.css" />
+				 <script src="https://cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.4"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+		<script src="/public/jquery-3.1.1.min.js"></script>
+		<script src="/public/semantic.min.js"></script>
+		<link href="/public/cleditor/jquery.cleditor.css" rel="stylesheet" />
+		<script src="/public/cleditor/jquery.cleditor.min.js"></script>
+		
+		<link href="/public/bootstrap/css/bootstrap.min.css" rel="stylesheet" >
+		<script src="/public/bootstrap/js/bootstrap.min.js"></script>
+
+		<script>
+			$(document).ready(function() {
+				var output = $("#contentsOutput").text();
+				$("#contentsOutput").html(output);
+				 
+			});
+			window.onload=()=>{
+				document.getElementById("profileimg").src = document.getElementById("photopath").value;
+			}
+		</script>
+
+		<script>
+			function modify(){
+			   if(document.getElementById("modifyId").readOnly==true){
+				   document.getElementById("modifyId").readOnly=false;
+				   document.getElementById("modifyButton").style.display="none"
+				   if(document.getElementById("modifyButton2").style.display=="none")
+				   document.getElementById("modifyButton2").style.display="block"
+			   }
+		   else{
+			   document.getElementById("modifyId").readOnly=true;
+			   document.getElementById("modifyButton").style.display="block"
+			   if(document.getElementById("modifyButton2").style.display=="block")
+				   document.getElementById("modifyButton2").style.display="none"
+		   }
+		   
+			}
+			   
+	   function makeClick()  {
+ 		 document.getElementById('photoInput').click();
+		    document.getElementById('photoInput').onchange=function(){
+				document.getElementById('profile_img').submit();
+			}
+		}
+	
+	   </script>
+	</head>
+	<body class="card">
+		<% include ./header.ejs %>
+		<div id="app-6" style="margin-top:20px; ">
+		
+			<div class="ui raised segment">
+				<!-- <a class="ui blue ribbon label">프로필</a> -->
+				
+				
+					<form class="btn-default"  method="post" action="/user/friend">
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" name="friend"  placeholder="친구 검색" >
+						<button type="submit" class="input-group-text btn-primary"  id="basic-addon2">친구 조회</button>
+					</div>
+					</form>
+				
+				
+				<div class="card mb-3" style="max-width: 80%; margin: 0 auto;" >
+				  <div >
+					<div class="col-md-4">
+					 <form style="margin:0px; " id="profile_img" enctype="multipart/form-data" method="post"  action="/user/profile_img">
+						<span class="image featured left floated author" onclick="makeClick()">
+							<img class="img-fluid" id="profileimg"  style="width:10em; heigt:10em; margin-top:5%; margin-left:20%;" src="" alt="프로필 사진 선택"  /><input hidden name="photo" id="photoInput"  type="file" accept="image/*">
+							<input hidden id="photopath"  type="text" value="<%=profile%>">
+						 </span>
+					</form>
+					</div>
+					<div class="col-md-8">
+					  <div class="card-body">
+						<ul class="list-group list-group-flush">
+							<li class="list-group-item">아이디: <strong><%= user.email %></strong></li>
+							<li class="list-group-item">소속 그룹: <strong><%= user.group %></strong></li>
+							<li class="list-group-item">고유 번호: <strong><%= user.own_number %></strong></li>
+						 </ul>
+						  <p class="card-text" style="margin-top:5px;">
+							<small class="text-muted">총 대출 권 수 :
+								<span class="badge badge-pill badge-success" onclick="javascript:window.location='/views/myPage'"><%=posts.reservationlist.length%></span></small>
+											<% var delayed_book=0;
+												for (var i = 0; i < posts.reservationlist.length; i++) {
+
+													var borrow_day = posts.reservationlist[i].updated_at;
+													var today = new Date();
+
+													var dateTerm = Math.ceil((today.getTime()-borrow_day.getTime())/(1000*3600*24));
+													if(borrow_day.getMonth==today.getMonth){
+														dateTerm=(today.getDate()-borrow_day.getDate());
+													}
+													if(dateTerm>14){
+														delayed_book++;
+													}
+											%>
+
+											<%}%>
+							<small class="text-muted">연체 중인 도서 :
+								<span class="badge badge-pill badge-success" onclick="javascript:window.location='/views/myPage'"><%=delayed_book%></span></small>
+							</p>
+						  <div class="input-group" >
+							<form  method="post"  action="/user/modifyUser" style="padding-left:0;">
+								<input style="display:inline-block;" type="text" id="modifyId" readonly   class="input-group-text" name="idmodify" value="<%= user.name %>">
+								<input type="button" id="modifyButton" class="input-group-text" style="float:right;" value="수정" onclick="modify()" />
+								<input type="submit" id="modifyButton2" class="input-group-text" style=" display:none;" value="완료" onclick="modify()" />
+							</form>
+							 
+							  </div>
+						  <br>
+						  <button type="button" class="btn btn-outline-warning" v-on:click="write('root')">개발자에게 문의하기</button>
+							<form class="input-group" method="post" style="float:right;" action="/user/deleteUser">
+							<input type="submit" id="modifyButton" class="btn btn-outline-danger" style=" float:left;" value="탈퇴" />
+							</form>
+						  
+						
+					  </div>
+					</div>
+				  </div>
+				</div>
+				
+				<nav class="nav nav-pills flex-column flex-sm-row">
+				 	<input   class="btn btn-outline-primary" type="button" value="북 히스토리" name="" v-on:click="getData()" v-if="where!='bookLog'" />
+					<input   class="btn btn-warning"  type="button" value="북 히스토리" name="" v-on:click="getData()" v-if="where=='bookLog'"/>
+					<input   class="btn btn-outline-primary" type="button" value="리뷰 히스토리" name="" v-on:click="turntoreview()"  v-if="where!='review'" />
+					<input   class="btn btn-warning"   st type="button" value="리뷰 히스토리" name="" v-on:click="turntoreview()"  v-if="where=='review'" />
+					<input   class="btn btn-outline-primary" type="button" value="친구 목록" name="" v-on:click="friendList()"   v-if="where!='friendlist'"/>
+					<input   class="btn btn-warning" type="button"  value="친구 목록" name="" v-on:click="friendList()"    v-if="where=='friendlist'"/>
+					<input   class="btn btn-outline-primary" type="button" value="메세지 함" name="" v-on:click="messageBox()"  v-if="where!='messageBox'"/>
+					<input   class="btn btn-warning" type="button"    value="메세지 함" v-on:click="messageBox()"  name=""  v-if="where=='messageBox'"/>
+					<input   class="btn btn-outline-primary" type="button" value="메세지 작성" name="" v-on:click="turntoLetter()"  v-if="where!='writeLetter'"/>
+					<input   class="btn btn-warning" type="button"   value="메세지 작성" v-on:click="turntoLetter()"  name=""  v-if="where=='writeLetter'"/>
+				
+				</nav>
+				
+				
+				
+				
+		
+				<div  style="overflow:scroll; width:100%; height:400px;">
+					<div class="ui blue fluid card"  v-if="where=='review'"  v-for="data in datas"   v-on:click="show(data._id)">
+                                <div class="content">
+                                    <div class="sixteen wide column">
+                                        <div class="ui header" style="inline-block">
+                                            <h4 class="ui left aligned header ">
+                                                {{data.contents}}
+                                            </h4>
+                                      <h5 class="ui left aligned header ">
+                                                {{data.created_at}}
+                                            </h5>
+												
+                                        </div>
+										
+                                    </div>	
+                                </div>
+                            </div>
+					
+						<div class="ui blue fluid card" v-if="where=='bookLog'" v-for="booklog in BookLogdatas"  v-on:click="show(booklog.bookInfo._id)">
+                                <div class="content">
+                                    <div class="sixteen wide column">
+                                        <div class="ui header" style="inline-block">
+                                            <h4 class="ui left aligned header ">
+                                                {{booklog.bookInfo.title}}
+                                            </h4>
+                                			 <h5 class="ui left aligned header ">
+                                                {{booklog.created_at}}
+                                            </h5>
+												
+                                        </div>
+										
+                                    </div>
+									
+										
+                                </div>
+                            </div>
+					
+					<div v-if="where=='friendlist'"> 
+						
+					<label style="display:inline;" >
+						<input v-model="query"  class="form-control"  style="width:70%; heigt:1.5em; float:left;  margin-top:5px; " placeholder="친구 아이디를 입력해주세요">
+						<button class="btn btn-outline-secondary " v-on:click="plusFriends()"  style="margin-top:5px; ">친구 추가</button>
+					</label> 
+						
+								<div class="ui blue fluid card" v-for="(friend,index) in friends"    v-on:click="write(friend)">
+                                <div class="content">
+                                    <div class="sixteen wide column">
+                                        <div class="ui header" style="inline-block">
+                                            <h4 class="ui left aligned header ">
+                                                {{friend}}
+                                            </h4>
+                                        </div>
+										
+                                    </div>	
+                                </div>
+                    </div>
+					</div>
+			
+							<div class="ui blue fluid card" v-for="(MESSAGE,index) in MESSAGES"    v-if="where=='messageBox'" >
+                                <div class="content" >
+                                    <div class="sixteen  column">
+                                        <div class=" " style="inline-block">
+                                            <h4 class="left aligned  " >
+                                                내용:{{MESSAGE.content}}
+												<button class="btn btn-outline-secondary " style="float:right;" v-if="!MESSAGE.link"  v-on:click="deleteMessage(MESSAGE._id,index)" >삭제하기</button>
+											</h4>
+											<h5 class=" left aligned header " v-if="MESSAGE.bookID"  v-on:click="show(MESSAGE.bookID._id)">
+                                                추천된 도서:{{MESSAGE.bookID.title}}
+                                            </h5>
+											<h5 class=" left aligned header " v-if="MESSAGE.link" >
+                                                친구 요청입니다. <button class="btn btn-outline-secondary " v-on:click="getplusFriends(MESSAGE.from,index,MESSAGE._id)" >수락하기</button>
+												<button class="btn btn-outline-secondary " v-on:click="deleteMessage(MESSAGE._id,index)" >삭제하기</button>
+                                            </h5>
+											<h5 class=" left aligned header ">
+                                                발신자:{{MESSAGE.from}}  
+                                            </h5>
+											
+                                        </div>
+										
+                                    </div>	
+                                </div>
+                            </div>
+							<div class="ui fluid card"  v-if="where=='writeLetter'" >
+                                <div class="content">
+                                    <div class="sixteen  column">
+                                       
+                                        <input v-model="email"  class="form-control"  style="width:52%; heigt:1.5em; float:left;" name="friend" placeholder="이메일을 입력해 주세요!" >  
+									
+										<textarea v-model="content"  class="form-control" type="text" name="contents" rows="4" style="width:52%;" placeholder="메세지 입력"></textarea>
+                                      
+										<input class="ui submit button" type="submit" value="작성 완료" name="" v-on:click="sendMessages()"/>
+                                    </div>	
+                                </div>
+                            </div>
+				</div>
+				
+       
+			</div>
+
+	
+		</div>
+			
+			<script>
+		var app6 = new Vue({
+		  el: '#app-6',
+		  data: {
+			datas: [],
+			 BookLogdatas: [],
+			  where:'review',
+			  showInput:false,
+			  query:'',
+			  friends:[],
+			  message:'',
+			  MESSAGES:[],
+			  email:'',
+			  content:'',
+			  img:''
+		  },
+		mounted() {
+			 this.$nextTick(function () {
+
+				this.$http.get('/user/profile_reivew') 
+						.then(function(response) {
+						     
+						  this.datas = response.data
+
+
+						});
+				 
+		  })
+		},
+        methods: {
+			show:function(id){
+				window.location='/book/showbook/'+id;
+				
+			},
+			write:function(email){
+				this.where = 'writeLetter';
+				this.email = email;
+				console.log(email);
+			},
+			accessFriends:  function(friend) {
+			
+     		 axios.post('/user/friend',{ friend: friend.friends })
+       		 .then(function(response) {
+         	
+       		 })
+        	.catch(function(error) {
+         	
+       		 });
+    		},
+			
+			plusFriends:function(){
+			
+				
+    			this.$http.get('/user/plusfriend?addfriend='+this.query) 
+					.then(function(response) {
+					
+						  this.friends = response.data.post.friends;
+
+					this.message = response.data.message;
+					alert(this.message);
+						});
+				
+			    },
+			getplusFriends:function(from,index,id){
+			
+				
+    			this.$http.get('/user/plusfriend?addfriend='+from+"&id="+id) 
+					.then(function(response) {
+				this.friends = response.data.post.friends;
+					alert('친구 요청을 수락하였습니다.');
+					this.MESSAGES.splice(index,1);
+						});
+				
+			    },
+			sendMessages:function(){
+					
+				if(this.email==''){
+					alert('수신인을 입력해 주세요');
+				}else{
+
+					 axios.post('/user/sendRecommand',{ friend: this.email, content: this.content})
+					 .then(function(response) {
+						
+					 })
+					.catch(function(error) {
+
+					 });
+								
+				alert("메세지 전송 완료");
+				}
+				this.content='';
+			},
+			
+			friendList:function(){
+			
+				  this.where = 'friendlist';
+    		this.$http.get('/user/loadfriends') 
+					.then(function(response) { 
+
+					  this.friends = response.data[0].friends;
+				  
+					});
+			  },
+			turntoreview:function(){
+				  this.where = 'review';
+				
+			},
+			turntoLetter:function(){
+				  this.where = 'writeLetter';
+				
+			},
+			messageBox:function(){
+				this.where = 'messageBox';
+				this.$http.get('/user/loadmessage') 
+					.then(function(response) { 
+					
+					  this.MESSAGES = response.data;
+				  
+					});
+			},
+			getData: function() {
+		
+				   this.where = 'bookLog';
+    		this.$http.get('/user/profile_bookLog') 
+					.then(function(response) {
+
+					  this.BookLogdatas = response.data;
+		
+					});
+			  },
+			deleteMessage: function(id,index) {
+		
+				
+    		this.$http.get('/user/deleteMessage/'+id) 
+					.then(function(response) {
+		
+					});
+				alert('삭제되었습니다.');
+				this.MESSAGES.splice(index,1);
+			  },
+			read: function(id,index) {
+		
+				
+    		this.$http.get('/user/readMessage/'+id) 
+					.then(function(response) {
+		
+					});
+			  },
+
+    	},
+
+		});
+
+		</script>
+	</body>
+</html>
+
+

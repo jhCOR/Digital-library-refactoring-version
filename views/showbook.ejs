@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+		
+		<title>글 조회 페이지</title>
+		
+		<link href="/public/semantic.min.css" rel="stylesheet" >
+		
+		
+		<style>
+			* {
+				padding:0;
+				margin:0;
+				box-sizing:border-box;
+			}
+			
+			html {
+				width:100%;
+				height:100%;
+			}
+			
+			body {
+				width:100%;
+				height:100%;
+				color: #000;
+				background-color: #fff;
+			}
+					
+			.container {
+				margin-right: auto;
+				margin-left: auto;
+				padding-left: 20px;
+				padding-right: 20px;
+			}
+	
+			span {
+				color: #999;
+			}
+			
+			#titleOutput {
+				margin-bottom: 10px;
+				line-height: 1.2em;
+			}
+			
+			#contentsOutput {
+				margin-top: 10px;
+				margin-bottom: 10px;
+				line-height: 1.8em;
+			}
+	  
+			#board_title {
+				font-size:1.2em;
+				font-weight:bold;
+				color:teal;
+			}
+	.align{
+		float: left;
+	}
+	.align2{
+		float: right;
+		display: inline;
+	}
+	.hidedbutton{
+		display: none;
+	}
+	.box{
+		display: inline;
+	}
+		</style>
+		
+		<script src="/public/jquery-3.1.1.min.js"></script>
+		<script src="/public/semantic.min.js"></script>
+		<link href="/public/cleditor/jquery.cleditor.css" rel="stylesheet" />
+		<script src="/public/cleditor/jquery.cleditor.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.js"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+		  <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.4"></script>
+		<script>
+			$(document).ready(function() {
+				var output = $("#contentsOutput").text();
+				
+				
+				$("#contentsOutput").html(output);
+				 
+			});
+
+		</script>
+<script>
+	function show(idforcomment){
+		var visibility=  document.getElementById(idforcomment).style.display;
+		if(visibility=='none'){
+		 document.getElementById(idforcomment).style.display='block';
+		}else{
+		 document.getElementById(idforcomment).style.display='none';
+		}
+	}
+	function alarm(){
+		alert("대출 불가 : 대출 권수가 초과되었습니다.");
+	}
+ </script>
+	</head>
+	<body>
+	
+		<div class="container"  id="app-6">
+			<br>
+
+			<div class="ui raised segment">
+				<a class="ui blue ribbon label">게시판</a>
+      			<span id="board_title"><%=title %></span>
+				
+				<p style="padding:0;">이 책을 읽은 사람 :
+					<span v-for="(user,index) in users" v-on:click="show(user.user)">
+						<img v-if="user.userId.profile_path!=defaultimg" class="ui avatar image" style="border: 2px solid;" v-bind:src="'../../uploads/' + user.userId.profile_path" alt="(알수없음)" />
+						<img v-if="user.userId.profile_path==defaultimg" class="ui avatar image" style="border: 2px solid;" v-bind:src="defaultimg"  />
+					</span></p>
+				
+
+				<div class="ui blue fluid card">
+					 <div class="content">
+						<% 
+						   var curTitle = posts._doc.title;
+						  var IMG = posts._doc.img;
+						 var group = posts._doc.group;
+						  var borrowUser = posts._doc.borrowUser;
+						   var curContents = posts._doc.contents;						  
+						var isBorrow=posts._doc.num;		
+						   var curWriter = posts._doc.writer.email; 
+						   var curWriterName = posts._doc.writer.name; 
+						   var curId = posts._doc._id; 
+						   var author=posts._doc.author; 
+						   var updated=posts._doc.updated_at;
+						   // html-entities module is required in post.js
+						   var entities = new Entities();
+						   var month=updated.getMonth()+1;
+						   var date=updated.getDate();
+						   var year=updated.getFullYear();
+						   var totalDate=year+'-'+month+'-'+date;
+						var unique= posts._doc.num;
+						var tem=curContents.replace(/<p>/gi,'');
+							<!-- var clearedContents=tem.replace(/</p>/gi,'');class="description" -->
+						   var decodedContents = entities.decode(tem);
+						   
+							  
+						%>
+						
+						<div id="titleOutput" class="header"><%=curTitle %></div>
+						<p>저자:<%=author %></p>
+						
+	   					<div class="meta">
+	     						<span class="right floated time"></span>
+	     				</div>
+						 <div >
+							<img src="<%=IMG %>" style="width:70px">
+					    </div>
+	   					<div id="contentsOutput" class="description">
+							<%=decodedContents %>
+					    </div>
+						 <input hidden type="text" id="bookID" value="<%=posts._id %>">
+					 </div>
+	  				<div class="extra content">
+	    				<div class="right floated author">
+	      					<img class="ui avatar image" src="<%='../../uploads/'+posts._doc.writer.profile_path %>" alt="/uploads/pic05.png"> <%=curWriterName %>
+	    				</div>
+						 <div >소속그룹 <%=group %></div>
+						<%if(borrowUser){%>
+						 <div > <%= "최근 대출자: "+borrowUser.name+" | email: "+borrowUser.email %>  <%= "최근 대출일 : "+totalDate %></div>
+						<%}%>
+					
+	  				</div>
+				
+				</div>
+				
+                <div class="ui very relaxed selection celled list">
+					
+				<% 
+				var i=0;
+				var curPage=page;
+				%>
+					<a class="ui button"  href='/book/listpost?page=<%=curPage %>&perPage=8'>글 목록</a>
+
+				
+					<% if (login_success&&user===curWriter) { %>
+					<form class="align"  method="post" action="/book/modify">
+						<input hidden type="text" name="id" value="<%=posts._id %>">
+						<input hidden type="text" name="id" value="<%=curWriter %>">
+						<input   class="ui button"  type="submit" value="글 수정" name="" />
+					</form> 
+					<% }%>
+					<% if (user===curWriter) { %>
+						<a class="ui button"  href='/book/delete/<%=posts._id %>'>삭제</a>
+					<% }%>
+					<% if (isBorrow=='0') {
+						if(userBookNum>=7){%>
+						
+							<input   class="ui button align"  type="button" value="대출" name="" onclick="alarm()" />
+						
+						<%}else{%>
+						<form   class="align" height="70px" method="post" action="/book/lend">
+							<input hidden type="text" name="id" value="<%=posts._id %>">
+							<input   class="ui button"  type="submit" value="대출" name="" />
+						</form> 
+						 <a class="ui button"  href='/book/loanByQrcode/<%=posts._id %>?request=borrow'>QrCodeLoanSystem</a>
+						<%}%>
+
+					<% }else if(isBorrow=='2'){%>
+						<input   class="ui button"  type="submit" value="예약 중" name="" />
+					<%}else{%>
+						<input   class="ui button"  type="submit" value="대출 불가" name="" />
+					<%}%>
+				<input class="ui button"  type="button" value="도서 추천" name=""  v-on:click="turntorecommand()" v-if="where=='review'"/>
+				<input class="ui button"  type="button" value="리뷰 작성" name="" v-on:click="turntoreview()" v-if="where=='recommand'" />
+			
+				<div>
+					<div v-if="where=='review'">
+						<form class="content ui form" method="post" action="/book/addreview">
+							<div class="field">
+								<label>리뷰</label>
+
+								<textarea type="text" name="contents" rows="4" style="width: 600px;" placeholder="리뷰 입력"></textarea>
+							</div>		
+							<input hidden type="text" name="writerforalert" value="<%=curWriter %>">
+							<input hidden type="text" name="id"  value="<%=curId %>">
+							<input class="ui submit button" type="submit" value="리뷰 추가" name="" />
+						</form>
+					</div>	
+					<div v-if="where=='recommand'" class="content ui form">
+						
+							<div class="field" style="width:50%;">
+								<label>도서 추천</label>
+									
+								<input class="form-control"  v-model="email" name="friend"  list="datalistOptions" id="DataList" placeholder="이메일을 입력해 주세요">
+								<datalist id="datalistOptions">
+									<%for(var i=0;i<friends.length;i++){%>
+									  <option value="<%=friends[i]%>">
+									<%}%>
+								</datalist>
+								<textarea v-model="content" type="text" name="contents" rows="4" style="width: 600px;" placeholder="추천하는 한마디를 입력해 주세요!"></textarea>
+							</div>		
+							<input class="ui submit button" type="submit" value="작성 완료" name="" v-on:click="sendRecommand"/>
+						
+					</div>	
+				</div>
+				
+                    <%  
+						   for (var i = 0; i < posts._doc.review.length; i++){
+						   var curCommentContents = posts._doc.review[i].contents;
+						   var curCommentWriter = posts._doc.review[i].writer;
+						   var curCommentWriterName = posts._doc.review[i].writername;
+						   var curCommentId=posts._doc.review[i]._id;
+						   var idforcomment=i;
+					
+                           %>
+                            <div class="item">
+                                <div class="ui grid">
+                                    <div class="sixteen wide column">
+                                        <div class="ui header">
+                                            <h4 class="ui left aligned header ">
+                                                <%=curCommentContents %>
+                                            </h4>
+                                            <h5 class="ui left aligned orange header">
+                                                <%=curCommentWriterName%> <%=" "+posts._doc.review[i].group%>
+											</h5>
+											
+										<div class="box">
+									</div>
+											<div style="display: none;" id="<%=idforcomment %>" >
+												<form class="content ui form" method="post" action="/process/addrecomment">
+													<div class="field">
+														<input class=".align" type="text" name="recomment" style="width: 600px;" placeholder="댓글 입력"> 
+														<input class=".align" type="submit" value="입력" name="" />
+													  </div>		
+													<input hidden type="text" name="id" value="<%=curId %>">
+													<input hidden type="text" name="id2" value="<%=curCommentId %>">
+												</form>
+											</div>
+
+											<div class="align2" >
+											
+												<% if (login_success&&user===curCommentWriter) { %>
+												<form    class="align2" method="post" action="/review/removereview">
+													<input hidden type="text" name="delete" value="<%=posts._doc.reviewID._id %>">
+													<input hidden type="text" name="content" value="<%= posts._doc._id %>">
+													<input hidden type="text" name="id" value="<%=i%>">
+													<input type="submit" value="삭제" name="" />
+												</form> 
+												<% }%>
+									
+												
+											</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    <% }
+					%>	
+
+                </div>
+			</div>
+			
+		</div>
+		<script>
+		var app6 = new Vue({
+		  el: '#app-6',
+		  data: {
+			email: '',
+			content:'',
+			  where:'review',
+			  alarm:'',
+			  friends:[],
+			  users:[],
+			  path:[],
+			  defaultimg:'../../public/images/pic05.png'
+		  },
+		mounted() {
+ 		 this.$nextTick(function () {
+			 var bookID=document.getElementById('bookID').value;
+	  		
+    		this.$http.get('/user/readuser?bookID='+bookID)
+					.then(function(response) {
+					  
+					  this.users = response.data;
+						this.path= this.users.map((user)=>{user.userId.profile_path})
+					});
+		  })
+		},
+        methods: {
+			show:function(email){
+				window.location='/user/friend?friend='+email;
+			},
+			turntoreview:function(){
+				  this.where = 'review';
+					this.email='';
+				 this.content='';
+			},
+			
+			turntorecommand:function(){
+				
+				  this.where = 'recommand';
+				
+			},
+			
+			sendRecommand:  function() {
+			
+				if(this.email==''){
+					 alert('수신인을 입력해 주세요');
+				}else{
+					 var bookID=document.getElementById('bookID').value;
+
+					 axios.post('/user/sendRecommand',{ friend: this.email, content: this.content,bookID:bookID })
+					 .then(function(response) {
+
+					 })
+					.catch(function(error) {
+
+					 });
+					alert("메세지 전송 완료");
+					}
+
+    		},
+			
+		
+					
+    	},
+
+		});
+
+		</script>
+	</body>
+</html>
+
+

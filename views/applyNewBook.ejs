@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+		
+		<title>글 쓰기</title>
+		
+  		<link href="/public/semantic.min.css" rel="stylesheet" >
+		 
+		<style>
+			* {
+				padding:0;
+				margin:0;
+				box-sizing:border-box;
+			}
+			
+			html {
+				width:100%;
+				height:100%;
+			}
+			
+			body {
+				width:100%;
+				height:100%;
+				color: #000;
+				background-color: #fff;
+			}
+					
+			.container {
+				margin-right: auto;
+				margin-left: auto;
+				padding-left: 20px;
+				padding-right: 20px;
+			}
+	
+			span {
+				color: #333;
+			}
+	  
+			#board_title {
+				font-size:1.2em;
+				font-weight:bold;
+				color:teal;
+			}
+	  
+		</style>
+		
+		<script src="/public/jquery-3.1.1.min.js"></script>
+		<script src="/public/semantic.min.js"></script>
+		<link href="/public/bootstrap/css/bootstrap.min.css" rel="stylesheet" >
+		<script src="/public/bootstrap/js/bootstrap.min.js"></script>
+
+	</head>
+<body>
+	
+		<%include ./header.ejs }%>
+    <div class="container">
+	    <br>
+     
+		<div class="ui raised segment">
+			
+			<div class="ui blue fluid card">
+				 <div class="content">
+			       		 
+					<form class="content ui form" method="post" action="/searchBooks">
+
+						<div class="field">
+				      			<label><input readonly type="text" name="next" id="next" value="<%=NEXT%>"></label>
+							
+						</div>
+						
+						<div class="two fields">
+				    		<div class="field">
+								<%if(NEXT!="ISBN 검색"){%>
+				      			<label>제목</label>
+								<%}else{%>
+								<label>ISBN</label>
+								<%}%>
+								<input type="text" name="booktitle" placeholder="검색어 입력">
+							</div>
+					
+						</div>
+ 
+						<input class="ui submit button" type="submit" value="검색" name="" />
+						<input class="ui button" type="button" value="취소" name="" onclick="javascript:history.back()" />
+					</form>
+										
+					<br><br>
+					
+				</div>
+			</div>
+		</div>
+ 
+	</div>
+	
+	<br><br>
+	
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+		
+		<title>글 쓰기</title>
+		
+  		<link href="/public/semantic.min.css" rel="stylesheet" >
+		 
+		<style>
+			* {
+				padding:0;
+				margin:0;
+				box-sizing:border-box;
+			}
+			
+			html {
+				width:100%;
+				height:100%;
+			}
+			
+			body {
+				width:100%;
+				height:100%;
+				color: #000;
+				background-color: #fff;
+			}
+					
+			.container {
+				margin-right: auto;
+				margin-left: auto;
+				padding-left: 20px;
+				padding-right: 20px;
+			}
+	
+			span {
+				color: #333;
+			}
+	  
+			#board_title {
+				font-size:1.2em;
+				font-weight:bold;
+				color:teal;
+			}
+	  
+		</style>
+		
+		<script src="/public/jquery-3.1.1.min.js"></script>
+		<script src="/public/semantic.min.js"></script>
+		<script src="/public/ckeditor/ckeditor.js"></script>
+		<script>
+		function search(){
+			var isbn=document.getElementById('isbn').value;
+				win=open("/views/applyNewBook.ejs?request=2","new page","width=400,height=300");
+				win.moveTo(500,100);
+
+		}
+		</script>
+	</head>
+<body>
+	
+    <div class="container">
+	    <br>
+     
+		<div class="ui raised segment">
+			<a class="ui blue ribbon label">도서 등록</a>
+			
+			<div class="ui blue fluid card">
+				 <div class="content">
+			       		
+					<form class="content ui form" method="post" action="/book/addbook">
+						<h4 class="ui dividing header">도서 등록</h4>
+						
+						<div class="two fields">
+							<label style="display:inline-block"><input type="text" hidden name="isbn" id="isbn" placeholder="isbn 입력"></label>
+							<label style="display:inline-block"><input type="text" hidden name="img" id="img" placeholder="img 입력"></label>
+						</div>	
+						<select name="classification"  style="width:10%; hight:5px;;">
+							<option value="지정하지 않음">지정하지 않음</option>
+							<option value="총류">총류</option>
+							<option value="철학">철학</option>
+							<option value="종교">종교</option>
+							<option value="사회과학">사회과학</option>
+							<option value="자연과학">자연과학</option>
+							<option value="기술과학">기술과학</option>
+							<option value="예술">예술</option>
+							<option value="언어">언어</option>
+							<option value="문학">문학</option>
+							<option value="역사">역사</option>
+						</select>
+						
+						<div class="two fields">
+				    		<div class="field">
+				      			<label>제목</label>
+								<input type="text" name="title" id="title" placeholder="제목 입력">
+							</div>
+						</div>	
+						<div class="two fields">
+				    		<div class="field">
+				      			<label>저자</label>
+								<input type="text" name="author" id="author" placeholder="저자 입력">
+							</div>
+						</div>	
+						<div class="field">
+				    		<label>줄거리</label>
+				    		<textarea id="contents" name="contents" id="contents" rows="10" cols="80"></textarea>
+				  		</div>
+						<div class="two fields">
+                            <div class="field">
+				      			<label><%=writer %></label>
+								<label><%=group %></label>
+							</div>
+						</div>
+								 
+						<input class="ui submit button" type="submit" value="추가" name="" />
+						<input class="ui button" type="button" value="취소" name="" onclick="javascript:history.back()" />
+					
+					</form>
+					<button style="margin-top:1%; " class="ui button" onclick="search()">도서 검색</button>	 
+					<br><br>
+					
+				</div>
+			</div>
+		</div>
+ 
+	</div>
+	
+	<br><br>
+	
+</body>
+</html>

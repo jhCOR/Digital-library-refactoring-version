@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+		
+		<title>글 리스트</title>
+		<link rel="SHORTCUT ICON" href="/public/images/faviconlogo.png"/>
+  		<link href="/public/semantic.min.css" rel="stylesheet" >
+		
+		<style>
+			* {
+				padding:0;
+				margin:0;
+				box-sizing:border-box;
+			}
+			
+			html {
+				width:100%;
+				height:100%;
+			}
+			
+			body {
+				width:100%;
+				height:100%;
+				color: #000;
+				background-color: #fff;
+			}
+					
+			.container {
+				margin-right: auto;
+				margin-left: auto;
+				padding-left: 20px;
+				padding-right: 20px;
+			}
+	
+			span {
+				color: #333;
+			}
+
+			#board_title {
+				font-size:1.2em;
+				font-weight:bold;
+				color:teal;
+			}
+			.align{
+		float: right;
+	}
+	.menu{
+		display: inline-block;
+	}
+		</style>
+		
+		
+		<script src="/public/jquery-2.1.4.min.js"></script>
+		<script src="/public/semantic.min.js"></script>
+		
+		<script>
+			function listpost(page, perPage) {
+				document.location = '/book/listpost?page=' + page + '&perPage=' + perPage;
+			}
+			
+			function send(i){
+				
+				if(document.getElementById('next').innerText=="책 찾기"){
+						
+					var param="bookimg"+i;
+					var book=document.getElementById(param).value;//or innerText
+					
+					insertTitle(book);
+					
+				}else if(document.getElementById('next').innerText=="책 신청"){
+					//alert("param:"+param);
+					var param="bookForm"+i;
+				document.getElementById(param).submit();
+				}else if(document.getElementById('next').innerText=="ISBN 검색"){
+					
+					var param1="booktitle"+i;
+					var param2="bookauthor"+i;
+					var param3="bookcontents"+i;
+					var param4="bookisbn"+i;
+					var param5="bookimg"+i;
+					
+					var book1=document.getElementById(param1).value;//or innerText
+					var book2=document.getElementById(param2).value;
+					var book3=document.getElementById(param3).value;
+					var book4=document.getElementById(param4).value;
+					var book5=document.getElementById(param5).value;
+					
+					insertISBN(book1,book2,book3,book4,book5);
+				}
+				
+			}
+			
+		async function insertTitle(string){
+
+			opener.document.getElementById("booktitle").value = string;
+			
+				
+			await closeWindow();
+		}
+		async function insertISBN(title,author,contents,isbn,img){
+			
+			opener.document.getElementById("title").value = title;
+			opener.document.getElementById("author").value = author;
+			opener.document.getElementById("contents").value = contents;
+			opener.document.getElementById("isbn").value = isbn;
+			opener.document.getElementById("img").value = img;
+			
+			await closeWindow();
+		}	
+			
+		function closeWindow(){
+			
+			window.close();
+		}
+		</script>
+		
+	</head>
+	<body>
+    	
+    	<div class="container">
+    		<br>
+    		
+			<div class="ui raised segment">
+				<a href='/book/listpost?page=0&perPage=2' id="next" class="ui blue ribbon label"><%=next%></a>
+      			<span id="board_title"><%=title%></span>
+			
+				
+				<div class="ui blue fluid card">
+					 <div class="content">
+       		
+			      		
+						<div class="ui grid">
+			   				<div class="two wide column"></div>
+			   				<div class="eight wide column">제목</div>
+			   			</div>
+				    		
+						<div class="ui very relaxed selection celled list">
+							<%  								
+							    for (var i = 0; i < posts.length; i++) {
+									
+								   var Title = posts[i].title.replace(/<b>/g,"");
+									var title=Title.replace(/\<\/b>/g,"");
+								   var author = posts[i].author;
+                                   var imgpath = posts[i].image;  
+									 var link = posts[i].link;  
+									 var isbn = posts[i].isbn;  
+									var Description = posts[i].description.replace(/<b>/g,"");
+									var description=Description.replace(/\<\/b>/g,"");
+									
+									
+								   %>
+					
+								    <div class="item">
+										<div class="ui grid"  onclick="send(<%=i %>)">
+						    				<div class="two wide column" >
+												<%if(next=="책 찾기"){%>
+												<img class="avatar image" src="<%=imgpath %>">
+												<%}else{%>
+												
+												<img class="ui image" src="<%=imgpath %>">
+												<%}%>
+											</div>
+						    				<div class="fourteen wide column">
+						    					<div class="ui header" style="display:inline">
+
+										    		<h4 class="ui left aligned header" >
+										    			<%=title %>
+										    		</h4>
+													
+													<div class="ui header" style="display:inline">
+											      	<h5 class="ui right aligned orange header">
+											      			<%=author %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+															
+											      	</h5>
+												
+													<form class="btn btn-default btn-sm" id="bookForm<%=i %>" method="post" action="/book/applyBook">
+									
+														<input hidden type="text" name="title" id="booktitle<%=i %>" value="<%=title %>">
+														<input hidden type="text" name="author" id="bookauthor<%=i %>" value="<%=author %>">
+														<input hidden type="text" name="link" id="bookimg<%=i %>" value="<%=imgpath %>">
+														<input hidden type="text" name="description" id="bookcontents<%=i %>" value="<%=description %>">
+														<input hidden type="text" name="isbn" id="bookisbn<%=i %>" value="<%=isbn %>">
+													</form>
+												</div>
+						    				</div>
+						    			</div>
+						    		</div>
+								</div>
+							<% } %>	
+						 
+				    	</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</body>
+</html>
+

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+		
+		<title>글 리스트</title>
+		<link rel="SHORTCUT ICON" href="/public/images/faviconlogo.png"/>
+  		<link href="/public/semantic.min.css" rel="stylesheet" >
+			<link href="/public/bootstrap/css/bootstrap.min.css" rel="stylesheet" >
+		<script src="/public/bootstrap/js/bootstrap.min.js"></script>
+		<style>
+			* {
+				padding:0;
+				margin:0;
+				box-sizing:border-box;
+			}
+			
+			html {
+				width:100%;
+				height:100%;
+			}
+			
+			body {
+				width:100%;
+				height:100%;
+				color: #000;
+				background-color: #fff;
+			}
+					
+			.container {
+				margin-right: auto;
+				margin-left: auto;
+				padding-left: 20px;
+				padding-right: 20px;
+			}
+	
+			span {
+				color: #333;
+			}
+
+			#board_title {
+				font-size:1.2em;
+				font-weight:bold;
+				color:teal;
+			}
+			.align{
+		float: right;
+	}
+	.menu{
+		display: inline-block;
+	}
+		</style>
+		
+		
+		<script src="/public/jquery-2.1.4.min.js"></script>
+		<script src="/public/semantic.min.js"></script>
+		
+		<script>
+			function listpost(page, perPage) {
+				document.location = '/book/listapplybook?page=' + page + '&perPage=' + perPage;
+			}
+
+		</script>
+		
+	</head>
+	<body>
+    	
+    	<div class="container">
+    		<br>
+    		
+			<div class="ui raised segment">
+				<a href='/book/listapplybook?page=0&perPage=2' class="ui blue ribbon label">게시판</a>
+      			
+			
+				
+				<div class="ui blue fluid card">
+					 <div class="content">
+       		
+			      		
+						<div class="ui grid">
+			   				<div class="two wide column">번호</div>
+			   				<div class="eight wide column">제목</div>
+			   			</div>
+				    		
+						<div class="ui very relaxed selection celled list">
+							<%  var noStart = (pageCount - page) * perPage;
+								
+							    for (var i = 0; i < posts.length; i++) {
+									
+								   var curTitle = posts[i]._doc.title||'0';
+								   var name = posts[i]._doc.name;
+								   var curUser = posts[i]._doc.user;
+									
+								   var isAccepted = posts[i]._doc.isAccepted;
+									 var isArrive = posts[i]._doc.isArrive;
+  									if(isAccepted=='1'){
+									   isAccepted='수락 완료';
+								   }else{
+									   isAccepted='수락 대기';
+								   }
+								   var curNo =0;
+								
+									   curNo=totalRecords-8*(page)-i;
+									if(curUser){
+										
+									
+								   %>
+								    <div class="item">
+										<div class="ui grid">
+						    				<div class="two wide column" ><%=curNo %></div>
+						    				<div class="fourteen wide column" onclick="javascript:window.location='#">
+						    					<div class="ui header">
+										    		<h4 class="ui left aligned header">
+										    			<%=curTitle %><%="(저자: "+posts[i]._doc.author +")"%>	
+														
+														 <span class="badge bg-warning text-dark" ><%=isAccepted%></span>
+														
+														<% if (admin=='accepted'&&isArrive=='1') { %>
+														 <span class="badge bg-secondary" style="font:black">비치완료</span>
+														<%}%>
+										    		</h4>
+											      	<h5 class="ui right aligned orange header">
+											      			<%='신청자 ID : '+curUser.email %><%=' 신청자 : '+curUser.name %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+															<%=isAccepted %>
+													
+															
+														<% if (admin=='accepted'&&isArrive=='0') { %>
+														<a class="ui button"  href='/book/acceptRequest/<%=posts[i]._id%> '>신청 수락</a>
+															<a class="ui button"  href='/book/arriveRequest/<%=posts[i]._id%> '>비치완료</a>
+														<%}%>
+											      	</h5>
+													
+												</div>
+						    				</div>
+						    			</div>
+						    		</div>
+							<%}
+							} %>	
+						 
+				    	</div>
+			    	 
+			       		<br>
+						<div class="tiny ui basic buttons">
+					 		<%
+					 			if (page > 0) {
+					 		%>
+					 				<div class="ui icon button" onclick="listpost(0, <%=perPage %>)">
+										<img style="width:10px;" src="/public/images/arrow3.png">
+									</div>
+									<div class="ui icon button" onclick="listpost(<%=(page-1) %>, <%=perPage %>)">
+										<img style="width:10px;" src="/public/images/arrow2.png">
+									</div>
+					 		<%
+					 			} else {
+					 		%>
+					 				<div class="ui disabled icon button">
+										<img style="width:10px;" src="/public/images/arrow3.png">
+									</div>
+									<div class="ui disabled icon button">
+										<img style="width:10px;" src="/public/images/arrow2.png">
+									</div>
+					 		<%
+					 			}
+					 		%>
+					 		<% 
+					 			var initial = Math.floor(page / 10) * 10;
+					 			
+					 			
+					 			var max = pageCount - initial;
+					 			if (max > 10) {
+					 				max = initial + 10;
+					 			} else {
+					 				max = initial + max;
+					 			}
+					 			
+					 			
+					 			for (var i = initial; i < max; i++) {
+					 				if (i != page) {
+					 		%>
+					 					<div class="ui button" onclick="listpost(<%=i %>, <%=perPage %>)">
+					 						<%= i %>
+					 					</div>
+					 		<%
+					 				} else {
+					 		%>
+					 					<div class="ui active basic button">
+					 						<%= i %>
+					 					</div>
+					 		<% 
+					 				}
+					 			}
+					 		%>
+					 		<%
+					 			if ((page+1) < pageCount) {
+					 		%>
+					 				<div class="ui icon button" onclick="listpost(<%=(page+1) %>, <%=perPage %>)">
+										<img style="width:10px;" src="/public/images/arrow.png">
+									</div>
+									<div class="ui icon button" onclick="listpost(<%=(pageCount-1) %>, <%=perPage %>)">
+										<img style="width:10px;" src="/public/images/arrow4.png">
+									</div>
+					 		<%
+					 			} else {
+					 		%>
+					 				<div class="ui disabled icon button">
+										<img style="width:10px;" src="/public/images/arrow.png">
+									</div>
+									<div class="ui disabled icon button">
+										<img style="width:10px;" src="/public/images/arrow4.png">
+									</div>
+					 		<%
+					 			}
+					 		%>
+					 	</div>
+						 	  
+						<br><br>
+						<div class="menu">
+						<a class="ui button"  href='/'>홈으로</a>
+						
+					</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</body>
+</html>
+

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+		
+		<title>글 리스트</title>
+		<link rel="SHORTCUT ICON" href="/public/images/faviconlogo.png"/>
+  		<link href="/public/semantic.min.css" rel="stylesheet" >
+				<link href="/public/bootstrap/css/bootstrap.min.css" rel="stylesheet" >
+		<script src="/public/bootstrap/js/bootstrap.min.js"></script>
+		<style>
+			* {
+				padding:0;
+				margin:0;
+				box-sizing:border-box;
+			}
+			
+			html {
+				width:100%;
+				height:100%;
+			}
+			
+			body {
+				width:100%;
+				height:100%;
+				color: #000;
+				background-color: #fff;
+			}
+					
+			.container {
+				margin-right: auto;
+				margin-left: auto;
+				padding-left: 20px;
+				padding-right: 20px;
+			}
+	
+			span {
+				color: #333;
+			}
+
+			#board_title {
+				font-size:1.2em;
+				font-weight:bold;
+				color:teal;
+			}
+			.align{
+		float: right;
+	}
+	.menu{
+		display: inline-block;
+	}
+		</style>
+		
+		
+		<script src="/public/jquery-2.1.4.min.js"></script>
+		<script src="/public/semantic.min.js"></script>
+		
+		<script>
+			function listpost(page, perPage) {
+				document.location = '/historyofbook?page=' + page + '&perPage=' + perPage;
+			}
+
+		</script>
+		
+	</head>
+	<body>
+    	<%include ../header.ejs }%>
+    	<div class="container">
+    		<br>
+    		
+			<div class="ui raised segment">
+				
+				
+				<div class="btn-group" role="group" >
+
+				<a href='/historyofbook?page=0&range=my'class="btn btn-outline-primary">나의 발자취</a>
+      			<a href='/historyofbook?page=0&range=group' class="btn btn-outline-primary">그룹 발자취</a>
+				<a href='/historyofbook?page=0&range=all'class="btn btn-outline-primary">모두의 발자취</a>
+				</div>
+				<div class="ui blue fluid card">
+					 <div class="content">
+       		
+			      		
+						<div class="ui grid">
+			   				<div class="eight wide column">	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;제목</div>
+			   			</div>
+				    		
+						<div class="ui very relaxed selection celled list">
+							<%  var noStart = (pageCount - page) * perPage;
+								
+							    for (var i = 0; i < posts.length; i++) {
+									
+								   var curTitle = posts[i]._doc.title||'0';
+								   var name = posts[i]._doc.writer;
+
+								   var curNo =0;
+								
+									   curNo=totalRecords-8*(page)-i;
+								   %>
+								    <div class="item">
+										<div class="ui grid">
+						    				
+						    				<div class="fourteen wide column" onclick="javascript:window.location='/history/<%=posts[i]._id %>'">
+						    					<div class="ui header">
+										    		<h4 class="ui left aligned header" style="margin-left=5%;">
+										    				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%=curTitle %>
+										    		</h4>
+											      	<h5 class="ui right aligned orange header">
+											      			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+														
+																<%=name.name %>&nbsp;&nbsp;&nbsp;&nbsp;<%="("+name.email+")" %>
+											      	</h5>
+													
+												</div>
+						    				</div>
+						    			</div>
+						    		</div>
+							<% } %>	
+						 
+				    	</div>
+			    	 
+			       		<br>
+									<div class="tiny ui basic buttons">
+					 		<%
+					 			if (page > 0) {
+					 		%>
+					 				<div class="ui icon button" onclick="listpost(0, <%=perPage %>)">
+										<img style="width:10px;" src="/public/images/arrow3.png">
+									</div>
+									<div class="ui icon button" onclick="listpost(<%=(page-1) %>, <%=perPage %>)">
+									<img style="width:10px;" src="/public/images/arrow2.png">
+									</div>
+					 		<%
+					 			} else {
+					 		%>
+					 				<div class="ui disabled icon button">
+										<img style="width:10px;" src="/public/images/arrow3.png">
+									</div>
+									<div class="ui disabled icon button">
+										<img style="width:10px;" src="/public/images/arrow2.png">
+									</div>
+					 		<%
+					 			}
+					 		%>
+					 		<% 
+					 			var initial = Math.floor(page / 10) * 10;
+					 			//console.log('initial : ' + initial);
+					 			
+					 			var max = pageCount - initial;
+					 			if (max > 10) {
+					 				max = initial + 10;
+					 			} else {
+					 				max = initial + max;
+					 			}
+					 			//console.log('max : ' + max);
+					 			
+					 			for (var i = initial; i < max; i++) {
+					 				if (i != page) {
+					 		%>
+					 					<div class="ui button" onclick="listpost(<%=i %>, <%=perPage %>)">
+					 						<%= i %>
+					 					</div>
+					 		<%
+					 				} else {
+					 		%>
+					 					<div class="ui active basic button">
+					 						<%= i %>
+					 					</div>
+					 		<% 
+					 				}
+					 			}
+					 		%>
+					 		<%
+					 			if ((page+1) < pageCount) {
+					 		%>
+					 				<div class="ui icon button" onclick="listpost(<%=(page+1) %>, <%=perPage %>)">
+										<img style="width:10px;" src="/public/images/arrow.png">
+									</div>
+									<div class="ui icon button" onclick="listpost(<%=(pageCount-1) %>, <%=perPage %>)">
+										<img style="width:10px;" src="/public/images/arrow4.png">
+									</div>
+					 		<%
+					 			} else {
+					 		%>
+					 				<div class="ui disabled icon button">
+										<img style="width:10px;" src="/public/images/arrow.png">
+									</div>
+									<div class="ui disabled icon button">
+										<img style="width:10px;" src="/public/images/arrow4.png">
+									</div>
+					 		<%
+					 			}
+					 		%>
+					 	</div>
+						 	  
+						<br><br>
+						<div class="menu">
+						
+			
+						<a  class="btn btn-outline-primary" href="/addhistory">독서발자취 남기기</a>
+												
+					</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</body>
+</html>
+
