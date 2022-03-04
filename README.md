@@ -12,12 +12,6 @@
 
 ## master branch :
  - 리펙토링 버전
-## reactProfile branch
- - 리액트로 프로필 기능 구현한 버전
- - ![image](https://user-images.githubusercontent.com/63538097/148758221-81973871-3562-4e16-883c-8c56ae2cce61.png)
- - 기존의 기능을 리액트로 재구현하여 SNS도서관의 특징인 프로필 기능을 강화한 버전입니다. 디자인이나 UX(사용자 경험)을 강화하기 위해 SNS핵심 기능을 리액트로 재구현하였습니다.
- - 그 외의 페이지 및 기존의 벡엔드는 기존의 벡엔드를 유지하여 규모를 키우는데 용이하도록 유지하였습니다. 
-
 
 ### Server(back-end)
 
